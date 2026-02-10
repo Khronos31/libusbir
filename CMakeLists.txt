@@ -20,7 +20,7 @@ install(FILES usbir.h DESTINATION include)
 # --- ここから CPack の魔法 ---
 set(CPACK_PACKAGE_NAME "libusbir")
 set(CPACK_PACKAGE_VENDOR "Khronos31")
-set(CPACK_PACKAGE_CONTACT "khronos3141@gmail.com")
+set(CPACK_PACKAGE_CONTACT "39792509+Khronos31@users.noreply.github.com")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "USB IR Library for AD00020")
 set(CPACK_GENERATOR "DEB;RPM;TGZ") # ここで形式を指定！
 include(CPack)
