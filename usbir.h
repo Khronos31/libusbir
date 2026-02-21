@@ -21,7 +21,7 @@ typedef struct {
 } USBIRDevice;
 
 // 公開するAPI
-USBIRDevice* openUSBIR();
+USBIRDevice* openUSBIR(int index);
 void closeUSBIR(USBIRDevice *dev);
 int writeUSBIRex(USBIRDevice *dev, int format_type, unsigned char *code, int code_len1, int code_len2);
 int readUSBIRex(USBIRDevice *dev, unsigned char* receive_data);

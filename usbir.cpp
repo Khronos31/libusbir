@@ -7,26 +7,44 @@
 #include "usbir.h"
 
 // デバイスを開いて構造体を返す（失敗したらNULL）
-USBIRDevice* openUSBIR() {
+USBIRDevice* openUSBIR(int index) {
     libusb_context *ctx = NULL;
     if (libusb_init(&ctx) < 0) return NULL;
 
-    libusb_device_handle *handle = libusb_open_device_with_vid_pid(ctx, VENDOR_ID, PRODUCT_ID);
+    libusb_device **devs;
+    ssize_t cnt = libusb_get_device_list(ctx, &devs);
+    if (cnt < 0) return NULL;
+
+    libusb_device_handle *handle = NULL;
+    int found_count = 0;
+
+    for (ssize_t i = 0; i < cnt; i++) {
+        struct libusb_device_descriptor desc;
+        if (libusb_get_device_descriptor(devs[i], &desc) < 0) continue;
+
+        if (desc.idVendor == VENDOR_ID && desc.idProduct == PRODUCT_ID) {
+            if (found_count == index) {
+                libusb_open(devs[i], &handle);
+                break;
+            }
+            found_count++;
+        }
+    }
+
+    libusb_free_device_list(devs, 1);
+
     if (!handle) {
         libusb_exit(ctx);
         return NULL;
     }
 
-    // 自動でカーネルドライバを切り離す設定（これ1行でdetachとclaimが楽になります）
     libusb_set_auto_detach_kernel_driver(handle, 1);
-
     if (libusb_claim_interface(handle, INTERFACE_NUM) < 0) {
         libusb_close(handle);
         libusb_exit(ctx);
         return NULL;
     }
 
-    // メモリを確保してハンドルを保持
     USBIRDevice *dev = (USBIRDevice*)malloc(sizeof(USBIRDevice));
     dev->ctx = ctx;
     dev->handle = handle;
